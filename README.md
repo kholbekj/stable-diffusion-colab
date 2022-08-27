@@ -1,34 +1,11 @@
-# Easy Installer for Windows
-You will need administrator privileges for installing Miniconda and the setup script.
-
-1. Download and extract this repo.
-2. Download the model checkpoint. (e.g. from huggingface)
-3. Place the model into 'models\ldm\stable-diffusion-v1' and rename it to 'model.ckpt'.
-4. Download and install Miniconda 3 #**for all users.**
-```
-5. Run webui.cmd (if your environment is named ldo) or webuildm.cmd (if your environment is named ldm)
-```
-
-After installation has completed, you can open webui.cmd (if your environment is named ldo) or webuildm.cmd (if your environment is named ldm)
-
-🔥 NEW! webui.cmd updates with any changes in environment.yaml file so the environment will always be up to date as long as you get the new environment.yaml file 🔥
-:fire: no need to remove environment, delete src folder and create again, MUCH simpler! 🔥
-
-Legacy support: Only if your environment is named ldm "Launch Waifu Diffusion" to run the program anytime.
-
-# Want to run full precision?
-Edit `scripts\relauncher.py`
-`python scripts/webui.py` becomes `python scripts/webui.py --no-half --precision=full`
-
-[Other cli arguments?](https://github.com/hlky/stable-diffusion#--help)
-
-
---------------
+https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4?usp=sharing
 
 Features:
-
 * Gradio GUI: Idiot-proof, fully featured frontend for both txt2img and img2img generation
 * No more manually typing parameters, now all you have to do is write your prompt and adjust sliders
+* :fire: :fire: Optimized support!! :fire: :fire:
+* 🔥 NEW! [webui.cmd](https://github.com/hlky/stable-diffusion) updates with any changes in environment.yaml file so the environment will always be up to date as long as you get the new environment.yaml file 🔥
+:fire: no need to remove environment, delete src folder and create again, MUCH simpler! 🔥
 * GFPGAN Face Correction 🔥: [Download the model](https://github.com/hlky/stable-diffusion-webui#gfpgan)Automatically correct distorted faces with a built-in GFPGAN option, fixes them in less than half a second 
 * RealESRGAN Upscaling 🔥: [Download the models](https://github.com/hlky/stable-diffusion-webui#realesrgan) Boosts the resolution of images with a built-in RealESRGAN option 
 * :computer: esrgan/gfpgan on cpu support :computer:
@@ -54,10 +31,13 @@ A browser interface based on Gradio library for Stable Diffusion.
 
 Original script with Gradio UI was written by a kind anonymopus user. This is a modification.
 
-![](https://github.com/hlky/stable-diffusion-webui/blob/master/images/txt2img.jpg)
-![](https://github.com/hlky/stable-diffusion-webui/blob/master/images/img2img.jpg)
-![](https://github.com/hlky/stable-diffusion-webui/blob/master/images/gfpgan.jpg)
-![](https://github.com/hlky/stable-diffusion-webui/blob/master/images/esrgan.jpg)
+![](images/txt2img.jpg)
+
+![](images/img2img.jpg)
+
+![](images/gfpgan.jpg)
+
+![](images/esrgan.jpg)
 
 ### GFPGAN
 
@@ -175,102 +155,3 @@ to get otherwise.
 Example: (cherrypicked result; original picture by anon)
 
 ![](images/loopback.jpg)
-
-
-### --help
-```
-optional arguments:
-  -h, --help            show this help message and exit
-  --outdir [OUTDIR]     dir to write results to
-  --outdir_txt2img [OUTDIR_TXT2IMG]
-                        dir to write txt2img results to (overrides --outdir)
-  --outdir_img2img [OUTDIR_IMG2IMG]
-                        dir to write img2img results to (overrides --outdir)
-  --save-metadata       Whether to embed the generation parameters in the sample images
-  --skip-grid           do not save a grid, only individual samples. Helpful when evaluating lots of samples
-  --skip-save           do not save indiviual samples. For speed measurements.
-  --n_rows N_ROWS       rows in the grid; use -1 for autodetect and 0 for n_rows to be same as batch_size (default:
-                        -1)
-  --config CONFIG       path to config which constructs model
-  --ckpt CKPT           path to checkpoint of model
-  --precision {full,autocast}
-                        evaluate at this precision
-  --gfpgan-dir GFPGAN_DIR
-                        GFPGAN directory
-  --realesrgan-dir REALESRGAN_DIR
-                        RealESRGAN directory
-  --realesrgan-model REALESRGAN_MODEL
-                        Upscaling model for RealESRGAN
-  --no-verify-input     do not verify input to check if it's too long
-  --no-half             do not switch the model to 16-bit floats
-  --no-progressbar-hiding
-                        do not hide progressbar in gradio UI (we hide it because it slows down ML if you have hardware
-                        accleration in browser)
-  --defaults DEFAULTS   path to configuration file providing UI defaults, uses same format as cli parameter
-  --gpu GPU             choose which GPU to use if you have multiple
-  --extra-models-cpu    run extra models (GFGPAN/ESRGAN) on cpu
-  --esrgan-cpu          run ESRGAN on cpu
-  --gfpgan-cpu          run GFPGAN on cpu
-  --cli CLI             don't launch web server, take Python function kwargs from this file.
-```
-
------
-
-# Stable Diffusion
-*Stable Diffusion was made possible thanks to a collaboration with [Stability AI](https://stability.ai/) and [Runway](https://runwayml.com/) and builds upon our previous work:*
-
-[**High-Resolution Image Synthesis with Latent Diffusion Models**](https://ommer-lab.com/research/latent-diffusion-models/)<br/>
-[Robin Rombach](https://github.com/rromb)\*,
-[Andreas Blattmann](https://github.com/ablattmann)\*,
-[Dominik Lorenz](https://github.com/qp-qp)\,
-[Patrick Esser](https://github.com/pesser),
-[Björn Ommer](https://hci.iwr.uni-heidelberg.de/Staff/bommer)<br/>
-
-**CVPR '22 Oral**
-
-which is available on [GitHub](https://github.com/CompVis/latent-diffusion). PDF at [arXiv](https://arxiv.org/abs/2112.10752). Please also visit our [Project page](https://ommer-lab.com/research/latent-diffusion-models/).
-
-![txt2img-stable2](assets/stable-samples/txt2img/merged-0006.png)
-[Stable Diffusion](#stable-diffusion-v1) is a latent text-to-image diffusion
-model.
-Thanks to a generous compute donation from [Stability AI](https://stability.ai/) and support from [LAION](https://laion.ai/), we were able to train a Latent Diffusion Model on 512x512 images from a subset of the [LAION-5B](https://laion.ai/blog/laion-5b/) database. 
-Similar to Google's [Imagen](https://arxiv.org/abs/2205.11487), 
-this model uses a frozen CLIP ViT-L/14 text encoder to condition the model on text prompts.
-With its 860M UNet and 123M text encoder, the model is relatively lightweight and runs on a GPU with at least 10GB VRAM.
-See [this section](#stable-diffusion-v1) below and the [model card](https://huggingface.co/CompVis/stable-diffusion).
-
-## Stable Diffusion v1
-
-Stable Diffusion v1 refers to a specific configuration of the model
-architecture that uses a downsampling-factor 8 autoencoder with an 860M UNet
-and CLIP ViT-L/14 text encoder for the diffusion model. The model was pretrained on 256x256 images and 
-then finetuned on 512x512 images.
-
-*Note: Stable Diffusion v1 is a general text-to-image diffusion model and therefore mirrors biases and (mis-)conceptions that are present
-in its training data. 
-Details on the training procedure and data, as well as the intended use of the model can be found in the corresponding [model card](https://huggingface.co/CompVis/stable-diffusion).
-
-## Comments 
-
-- Our codebase for the diffusion models builds heavily on [OpenAI's ADM codebase](https://github.com/openai/guided-diffusion)
-and [https://github.com/lucidrains/denoising-diffusion-pytorch](https://github.com/lucidrains/denoising-diffusion-pytorch). 
-Thanks for open-sourcing!
-
-- The implementation of the transformer encoder is from [x-transformers](https://github.com/lucidrains/x-transformers) by [lucidrains](https://github.com/lucidrains?tab=repositories). 
-
-
-## BibTeX
-
-```
-@misc{rombach2021highresolution,
-      title={High-Resolution Image Synthesis with Latent Diffusion Models}, 
-      author={Robin Rombach and Andreas Blattmann and Dominik Lorenz and Patrick Esser and Björn Ommer},
-      year={2021},
-      eprint={2112.10752},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-```
-
-
