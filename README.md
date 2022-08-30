@@ -1,6 +1,4 @@
-https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4#scrollTo=jj6YKCdTDzMf
-
-# [Installation](https://github.com/hlky/stable-diffusion/wiki/Installation)
+# https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4#scrollTo=jj6YKCdTDzMf
 
 ## [Development, testing, bleeding edge, maybe have bugs](https://github.com/hlky/stable-diffusion-webui)
 
