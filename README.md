@@ -1,4 +1,40 @@
+<<<<<<< HEAD
 https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4?usp=sharing
+=======
+https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4#scrollTo=jj6YKCdTDzMf
+
+# [Installation](https://github.com/hlky/stable-diffusion/wiki/Installation)
+
+## [Development, testing, bleeding edge, maybe have bugs](https://github.com/hlky/stable-diffusion-webui)
+
+### Have an **issue**? 
+* If the issue involves the **webUI** and you have the **stable version** from **_this repo_** create the issue on **_this repo_**
+* If the issue involves the **webUI** and you have the **development version** from **_[hlky/stable-diffusion-webui](https://github.com/hlky/stable-diffusion-webui)_** create the issue on **_[hlky/stable-diffusion-webui](https://github.com/hlky/stable-diffusion-webui)_**
+* If the issue involves _a bug_ in **textual-inversion** create the issue on **_[hlky/stable-diffusion-webui](https://github.com/hlky/stable-diffusion-webui)_**
+* If you want to know how to **activate** or **use** textual-inversion see **_[hlky/sd-enable-textual-inversion](https://github.com/hlky/sd-enable-textual-inversion)_**. Activation not working? create the issue on **_[hlky/stable-diffusion-webui](https://github.com/hlky/stable-diffusion-webui)_**
+* If the issue involves anything else create the issue on **_this repo_**
+
+## More documentation about features, troubleshooting, common issues very soon
+### Want to help with documentation? Documented something? Use [Discussions](https://github.com/hlky/stable-diffusion/discussions)
+
+## **Important**
+
+🔥 NEW! webui.cmd updates with any changes in environment.yaml file so the environment will always be up to date as long as you get the new environment.yaml file 🔥
+
+:fire: no need to remove environment, delete src folder and create again, MUCH simpler! 🔥
+
+
+
+
+--------------
+>>>>>>> a463cd80c77cfc55640fff109da727a3e9167570
+
+### Questions about **_[Upscalers](https://github.com/hlky/stable-diffusion-webui/wiki/Upscalers)_**?
+### Questions about **_[Optimized mode](https://github.com/hlky/stable-diffusion-webui/wiki/Optimized-mode)_**?
+### Questions about **_[Command line options](https://github.com/hlky/stable-diffusion-webui/wiki/Command-line-options)_**?
+
+--------------
+
 
 Features:
 * Gradio GUI: Idiot-proof, fully featured frontend for both txt2img and img2img generation
@@ -29,7 +65,7 @@ Features:
 # Stable Diffusion web UI
 A browser interface based on Gradio library for Stable Diffusion.
 
-Original script with Gradio UI was written by a kind anonymopus user. This is a modification.
+Original script with Gradio UI was written by a kind anonymous user. This is a modification.
 
 ![](images/txt2img.jpg)
 

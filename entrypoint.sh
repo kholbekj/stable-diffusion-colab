@@ -9,32 +9,44 @@
 # download URL
 # sha256sum
 MODEL_FILES=(
-    'model.ckpt /src/models/ldm/stable-diffusion-v1 https://www.googleapis.com/storage/v1/b/aai-blog-files/o/sd-v1-4.ckpt?alt=media fe4efff1e174c627256e44ec2991ba279b3816e364b49f9be2abc0b3ff3f8556'
-    'GFPGANv1.3.pth /src/src/gfpgan/experiments/pretrained_models https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth c953a88f2727c85c3d9ae72e2bd4846bbaf59fe6972ad94130e23e7017524a70'
-    'RealESRGAN_x4plus.pth /src/src/realesrgan/experiments/pretrained_models https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth 4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1'
-    'RealESRGAN_x4plus_anime_6B.pth /src/src/realesrgan/experiments/pretrained_models https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da'
+    'model.ckpt /sd/models/ldm/stable-diffusion-v1 https://www.googleapis.com/storage/v1/b/aai-blog-files/o/sd-v1-4.ckpt?alt=media fe4efff1e174c627256e44ec2991ba279b3816e364b49f9be2abc0b3ff3f8556'
+    'GFPGANv1.3.pth /sd/src/gfpgan/experiments/pretrained_models https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth c953a88f2727c85c3d9ae72e2bd4846bbaf59fe6972ad94130e23e7017524a70'
+    'RealESRGAN_x4plus.pth /sd/src/realesrgan/experiments/pretrained_models https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth 4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1'
+    'RealESRGAN_x4plus_anime_6B.pth /sd/src/realesrgan/experiments/pretrained_models https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da'
 )
 
-# Activate conda env for this script
+# Conda environment installs/updates
 # @see https://github.com/ContinuumIO/docker-images/issues/89#issuecomment-467287039
-cd /src
-. /opt/conda/etc/profile.d/conda.sh
-conda activate ldm
+ENV_NAME="ldm"
+ENV_FILE="/sd/environment.yaml"
+ENV_UPDATED=0
+ENV_MODIFIED=$(date -r $ENV_FILE "+%s")
+ENV_MODIFED_FILE="/sd/.env_updated"
+if [[ -f $ENV_MODIFED_FILE ]]; then ENV_MODIFIED_CACHED=$(<${ENV_MODIFED_FILE}); else ENV_MODIFIED_CACHED=0; fi
 
-# Check if environment.yaml file was updated and update env if so
-ENV_CREATED_FILE="/tmp/.env_created"
-ENV_MODIFED_FILE="/src/.env_updated"
-ENV_MODIFIED=$(date -r /src/environment.yaml "+%s")
-ENV_CREATED_CACHED=0
-ENV_MODIFIED_CACHED=0
-if [[ -f $ENV_CREATED_FILE ]]; then ENV_CREATED_CACHED=$(<${ENV_CREATED_FILE}); fi
-if [[ -f $ENV_MODIFED_FILE ]]; then ENV_MODIFIED_CACHED=$(<${ENV_MODIFED_FILE}); fi
+# Create/update conda env if needed
+if ! conda env list | grep ".*${ENV_NAME}.*" >/dev/null 2>&1; then
+    echo "Could not find conda env: ${ENV_NAME} ... creating ..."
+    conda env create -f $ENV_FILE
+    echo "source activate ${ENV_NAME}" > /root/.bashrc
+    ENV_UPDATED=1
+elif (( $ENV_MODIFIED > $ENV_MODIFIED_CACHED )); then
+    echo "Updating conda env: ${ENV_NAME} ..."
+    conda env update --file $ENV_FILE --prune
+    ENV_UPDATED=1
+fi
 
-if (( $ENV_MODIFIED > $ENV_CREATED_CACHED && $ENV_MODIFIED > $ENV_MODIFIED_CACHED )); then
-    conda env update --file environment.yaml --prune
+# Clear artifacts from conda after create/update
+# @see https://docs.conda.io/projects/conda/en/latest/commands/clean.html
+if (( $ENV_UPDATED > 0 )); then
     conda clean --all
     echo -n $ENV_MODIFIED > $ENV_MODIFED_FILE
 fi
+
+# activate conda env
+. /opt/conda/etc/profile.d/conda.sh
+conda activate $ENV_NAME
+conda info | grep active
 
 # Function to checks for valid hash for model files and download/replaces if invalid or does not exist
 validateDownloadModel() {
@@ -63,4 +75,15 @@ for models in "${MODEL_FILES[@]}"; do
 done
 
 # Launch web gui
-python -u scripts/relauncher.py
+n=0
+cd /sd
+while true; do
+    echo "entrypoint.sh: Launching..."
+    if (( $n > 0 )); then
+        echo "Relaunch count: ${n}"
+    fi
+    python -u scripts/webui.py
+    echo "entrypoint.sh: Process is ending. Relaunching in 0.5s..."
+    ((n++))
+    sleep 0.5
+done
