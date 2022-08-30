@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4?usp=sharing
-=======
 https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4#scrollTo=jj6YKCdTDzMf
 
 # [Installation](https://github.com/hlky/stable-diffusion/wiki/Installation)
@@ -17,17 +14,7 @@ https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4#scroll
 ## More documentation about features, troubleshooting, common issues very soon
 ### Want to help with documentation? Documented something? Use [Discussions](https://github.com/hlky/stable-diffusion/discussions)
 
-## **Important**
-
-🔥 NEW! webui.cmd updates with any changes in environment.yaml file so the environment will always be up to date as long as you get the new environment.yaml file 🔥
-
-:fire: no need to remove environment, delete src folder and create again, MUCH simpler! 🔥
-
-
-
-
 --------------
->>>>>>> a463cd80c77cfc55640fff109da727a3e9167570
 
 ### Questions about **_[Upscalers](https://github.com/hlky/stable-diffusion-webui/wiki/Upscalers)_**?
 ### Questions about **_[Optimized mode](https://github.com/hlky/stable-diffusion-webui/wiki/Optimized-mode)_**?
