@@ -23,13 +23,13 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
 
                 with gr.Row(elem_id='body').style(equal_height=False):
                     with gr.Column():
-                        txt2img_height = gr.Slider(minimum=64, maximum=2048, step=64, label="Height",
-                                                   value=txt2img_defaults["height"])
                         txt2img_width = gr.Slider(minimum=64, maximum=2048, step=64, label="Width",
                                                   value=txt2img_defaults["width"])
+                        txt2img_height = gr.Slider(minimum=64, maximum=2048, step=64, label="Height",
+                                                   value=txt2img_defaults["height"])
                         txt2img_cfg = gr.Slider(minimum=-40.0, maximum=30.0, step=0.5,
                                                 label='Classifier Free Guidance Scale (how strongly the image should follow the prompt)',
-                                                value=txt2img_defaults['cfg_scale'])
+                                                value=txt2img_defaults['cfg_scale'], elem_id='cfg_slider')
                         txt2img_seed = gr.Textbox(label="Seed (blank to randomize)", lines=1, max_lines=1,
                                                   value=txt2img_defaults["seed"])
                         txt2img_batch_count = gr.Slider(minimum=1, maximum=250, step=1,
@@ -38,6 +38,7 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                         txt2img_batch_size = gr.Slider(minimum=1, maximum=8, step=1,
                                                        label='Batch size (how many images are in a batch; memory-hungry)',
                                                        value=txt2img_defaults['batch_size'])
+                        txt2img_dimensions_info_text_box = gr.Textbox(label="Aspect ratio (4:3 = 1.333 | 16:9 = 1.777 | 21:9 = 2.333)")
                     with gr.Column():
                         output_txt2img_gallery = gr.Gallery(label="Images", elem_id="txt2img_gallery_output").style(grid=[4, 4])
 
@@ -113,6 +114,8 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                      txt2img_height, txt2img_width, txt2img_embeddings, txt2img_variant_amount, txt2img_variant_seed],
                     [output_txt2img_gallery, output_txt2img_seed, output_txt2img_params, output_txt2img_stats]
                 )
+                txt2img_width.change(fn=uifn.update_dimensions_info, inputs=[txt2img_width, txt2img_height], outputs=txt2img_dimensions_info_text_box)
+                txt2img_height.change(fn=uifn.update_dimensions_info, inputs=[txt2img_width, txt2img_height], outputs=txt2img_dimensions_info_text_box)
 
             with gr.TabItem("Stable Diffusion Image-to-Image Unified", id="img2img_tab"):
                 with gr.Row(elem_id="prompt_row"):
@@ -192,7 +195,7 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                         
                         img2img_cfg = gr.Slider(minimum=-40.0, maximum=30.0, step=0.5,
                                                 label='Classifier Free Guidance Scale (how strongly the image should follow the prompt)',
-                                                value=img2img_defaults['cfg_scale'])
+                                                value=img2img_defaults['cfg_scale'], elem_id='cfg_slider')
 
                         img2img_seed = gr.Textbox(label="Seed (blank to randomize)", lines=1, max_lines=1,
                                                   value=img2img_defaults["seed"])
@@ -202,6 +205,7 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                         img2img_batch_size = gr.Slider(minimum=1, maximum=8, step=1,
                                                        label='Batch size (how many images are in a batch; memory-hungry)',
                                                        value=img2img_defaults['batch_size'])
+                        img2img_dimensions_info_text_box = gr.Textbox(label="Aspect ratio (4:3 = 1.333 | 16:9 = 1.777 | 21:9 = 2.333)")
                     with gr.Column():
                         img2img_steps = gr.Slider(minimum=1, maximum=250, step=1, label="Sampling Steps",
                                                   value=img2img_defaults['ddim_steps'])
@@ -287,6 +291,9 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
 
                 img2img_painterro_btn.click(None, [img2img_image_editor], [img2img_image_editor, img2img_image_mask], _js=js_painterro_launch('img2img_editor'))
 
+                img2img_width.change(fn=uifn.update_dimensions_info, inputs=[img2img_width, img2img_height], outputs=img2img_dimensions_info_text_box)
+                img2img_height.change(fn=uifn.update_dimensions_info, inputs=[img2img_width, img2img_height], outputs=img2img_dimensions_info_text_box)
+
             if GFPGAN is not None:
                 gfpgan_defaults = {
                     'strength': 100,
@@ -304,7 +311,7 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                                                         value=gfpgan_defaults['strength'])
                             gfpgan_btn = gr.Button("Generate", variant="primary")
                         with gr.Column():
-                            gfpgan_output = gr.Image(label="Output")
+                            gfpgan_output = gr.Image(label="Output", elem_id='gan_image')
                     gfpgan_btn.click(
                         run_GFPGAN,
                         [gfpgan_source, gfpgan_strength],
@@ -321,7 +328,7 @@ def draw_gradio_ui(opt, img2img=lambda x: x, txt2img=lambda x: x, txt2img_defaul
                                                                 value='RealESRGAN_x4plus')
                             realesrgan_btn = gr.Button("Generate")
                         with gr.Column():
-                            realesrgan_output = gr.Image(label="Output")
+                            realesrgan_output = gr.Image(label="Output", elem_id='gan_image')
                     realesrgan_btn.click(
                         run_RealESRGAN,
                         [realesrgan_source, realesrgan_model_name],
