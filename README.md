@@ -1,5 +1,4 @@
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/altryne/sd-webui-colab/blob/main/Stable_Diffusion_WebUi_Altryne.ipynb)
-
+# My colab: https://colab.research.google.com/drive/1KeNq05lji7p-WDS2BL-86Z8Y9SluGng4
 # [Installation](https://github.com/hlky/stable-diffusion/wiki/Installation)
 
 ## [Development, testing, bleeding edge, maybe have bugs](https://github.com/hlky/stable-diffusion-webui)
