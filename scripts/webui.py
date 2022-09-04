@@ -782,7 +782,7 @@ def process_images(
         uses_random_seed_loopback=False, sort_samples=True, write_info_files=True, write_sample_info_to_log_file=False, jpg_sample=False,
         variant_amount=0.0, variant_seed=None,imgProcessorTask=False, job_info: JobInfo = None):
     """this is the main loop that both txt2img and img2img use; it calls func_init once inside all the scopes and func_sample once per batch"""
-    assert prompt is not None
+    prompt = prompt or ''
     torch_gc()
     # start time after garbage collection (or before?)
     start_time = time.time()
@@ -840,6 +840,7 @@ def process_images(
 
         all_prompts = batch_size * n_iter * [prompt]
         all_seeds = [seed + x for x in range(len(all_prompts))]
+    original_seeds = all_seeds.copy()
 
     precision_scope = autocast if opt.precision == "autocast" else nullcontext
     if job_info:
@@ -874,6 +875,7 @@ def process_images(
             prompts = all_prompts[n * batch_size:(n + 1) * batch_size]
             captions = prompt_matrix_parts[n * batch_size:(n + 1) * batch_size]
             seeds = all_seeds[n * batch_size:(n + 1) * batch_size]
+            current_seeds = original_seeds[n * batch_size:(n + 1) * batch_size]
 
             if job_info:
                 job_info.job_status = f"Processing Iteration {n+1}/{n_iter}. Batch size {batch_size}"
@@ -907,6 +909,7 @@ def process_images(
                 while(torch.cuda.memory_allocated()/1e6 >= mem):
                     time.sleep(1)
 
+            cur_variant_amount = variant_amount 
             if variant_amount == 0.0:
                 # we manually generate all input noises because each one should have a specific seed
                 x = create_random_tensors(shape, seeds=seeds)
@@ -917,10 +920,17 @@ def process_images(
                 if variant_seed != None and variant_seed != '':
                     specified_variant_seed = seed_to_int(variant_seed)
                     torch.manual_seed(specified_variant_seed)
-                    seeds = [specified_variant_seed]
-                target_x = create_random_tensors(shape, seeds=seeds)
+                    target_x = create_random_tensors(shape, seeds=[specified_variant_seed])
+                    # with a variant seed we would end up with the same variant as the basic seed
+                    # does not change. But we can increase the steps to get an interesting result
+                    # that shows more and more deviation of the original image and let us adjust
+                    # how far we will go (using 10 iterations with variation amount set to 0.02 will
+                    # generate an icreasingly variated image which is very interesting for movies)
+                    cur_variant_amount += n*variant_amount
+                else:
+                    target_x = create_random_tensors(shape, seeds=seeds)
                 # finally, slerp base_x noise to target_x noise for creating a variant
-                x = slerp(device, max(0.0, min(1.0, variant_amount)), base_x, target_x)
+                x = slerp(device, max(0.0, min(1.0, cur_variant_amount)), base_x, target_x)
 
             samples_ddim = func_sample(init_data=init_data, x=x, conditioning=c, unconditional_conditioning=uc, sampler_name=sampler_name)
 
@@ -933,17 +943,24 @@ def process_images(
             x_samples_ddim = torch.clamp((x_samples_ddim + 1.0) / 2.0, min=0.0, max=1.0)
             for i, x_sample in enumerate(x_samples_ddim):
                 sanitized_prompt = prompts[i].replace(' ', '_').translate({ord(x): '' for x in invalid_filename_chars})
+                if variant_seed != None and variant_seed != '':
+                    if variant_amount == 0.0:
+                        seed_used = f"{current_seeds[i]}-{variant_seed}"
+                    else:
+                        seed_used = f"{seed}-{variant_seed}"
+                else:
+                   seed_used = f"{current_seeds[i]}"
                 if sort_samples:
                     sanitized_prompt = sanitized_prompt[:128] #200 is too long
                     sample_path_i = os.path.join(sample_path, sanitized_prompt)
                     os.makedirs(sample_path_i, exist_ok=True)
                     base_count = get_next_sequence_number(sample_path_i)
-                    filename = f"{base_count:05}-{steps}_{sampler_name}_{seeds[i]}"
+                    filename = f"{base_count:05}-{steps}_{sampler_name}_{seed_used}_{cur_variant_amount:.2f}"
                 else:
                     sample_path_i = sample_path
                     base_count = get_next_sequence_number(sample_path_i)
                     sanitized_prompt = sanitized_prompt
-                    filename = f"{base_count:05}-{steps}_{sampler_name}_{seeds[i]}_{sanitized_prompt}"[:128] #same as before
+                    filename = f"{base_count:05}-{steps}_{sampler_name}_{seed_used}_{cur_variant_amount:.2f}_{sanitized_prompt}"[:128] #same as before
 
                 x_sample = 255. * rearrange(x_sample.cpu().numpy(), 'c h w -> h w c')
                 x_sample = x_sample.astype(np.uint8)
@@ -1205,7 +1222,7 @@ class Flagging(gr.FlaggingCallback):
         print("Logged:", filenames[0])
 
 
-def img2img(prompt: str, image_editor_mode: str, init_info: Dict[str,Image.Image], mask_mode: str, mask_blur_strength: int, ddim_steps: int, sampler_name: str,
+def img2img(prompt: str, image_editor_mode: str, init_info: any, init_info_mask: any, mask_mode: str, mask_blur_strength: int, ddim_steps: int, sampler_name: str,
             toggles: List[int], realesrgan_model_name: str, n_iter: int,  cfg_scale: float, denoising_strength: float,
             seed: int, height: int, width: int, resize_mode: int, fp = None, job_info: JobInfo = None):
     outpath = opt.outdir_img2img or opt.outdir or "outputs/img2img-samples"
@@ -1253,11 +1270,10 @@ def img2img(prompt: str, image_editor_mode: str, init_info: Dict[str,Image.Image
         raise Exception("Unknown sampler: " + sampler_name)
 
     if image_editor_mode == 'Mask':
-        init_img = init_info["image"]
+        init_img = init_info_mask["image"]
         init_img = init_img.convert("RGB")
         init_img = resize_image(resize_mode, init_img, width, height)
-        init_mask = init_info["mask"]
-        print(init_mask)
+        init_mask = init_info_mask["mask"]
         init_mask = resize_image(resize_mode, init_mask, width, height)
         keep_mask = mask_mode == 0
         init_mask = init_mask.convert("RGB")
@@ -1491,7 +1507,7 @@ def split_weighted_subprompts(input_string, normalize=True):
     weight_sum = sum(map(lambda x: x[1], parsed_prompts))
     if weight_sum == 0:
         print("Warning: Subprompt weights add up to zero. Discarding and using even weights instead.")
-        equal_weight = 1 / len(parsed_prompts)
+        equal_weight = 1 / (len(parsed_prompts) or 1)
         return [(x[0], equal_weight) for x in parsed_prompts]
     return [(x[0], x[1] / weight_sum) for x in parsed_prompts]
 
